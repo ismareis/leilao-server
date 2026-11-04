@@ -4,9 +4,9 @@ A seguir estão as decisões adotadas para cumprir as regras gerais do trabalho,
 
 ### 1. Participantes e Identificação (Req. 2.1)
 
-* **Decisão:** A identificação de cada cliente será feita por um **nome de usuário** (string) único. Os IPs e portas serão passados direto no terminal na hora de rodar o código (usando `sys.argv` no Python). Assim que conecta, o cliente envia uma mensagem de cadastro com o nome e a porta UDP onde deseja receber os avisos. Por padrão, o servidor escuta no IP `127.0.0.1` e na porta TCP `5000`. A ordem dos argumentos será `python server.py <ip> <porta_tcp>` para o servidor e `python client.py <ip_servidor> <porta_tcp> <nome> <porta_udp>` para o cliente, com cada cliente usando uma porta UDP diferente (sugestão: `5001`, `5002` e `5003`).
+* **Decisão:** A identificação de cada cliente será feita por um **nome de usuário** (string) único. O servidor será executado **sem nenhum argumento** (`python server.py`), com o IP e a porta TCP definidos como constantes no próprio código. O cliente também será executado **sem nenhum argumento** (`python client.py`) e, já com o programa rodando, pedirá pelo terminal o IP do servidor, a porta TCP, o nome e a porta UDP. Assim que conecta, o cliente envia uma mensagem de cadastro com o nome e a porta UDP onde deseja receber os avisos. O valor padrão das constantes do servidor será o IP `127.0.0.1` e a porta TCP `5000`, e deverão ser alteradas no código caso o teste ocorra entre computadores. Cada cliente deverá usar uma porta UDP diferente (sugestão: `5001`, `5002` e `5003`).
 
-* **Justificativa:** O trabalho não permite usar só o IP para identificar os clientes, já que os testes ocorrerão no mesmo computador (localhost). Além disso, o servidor precisa saber a porta UDP de cada participante logo no início para conseguir enviar as notificações depois. Fixar os valores padrão e a ordem dos argumentos evita que servidor e cliente sejam desenvolvidos com configurações diferentes, e atende a exigência de documentar os endereços e as portas utilizados.
+* **Justificativa:** O trabalho não permite usar só o IP para identificar os clientes, já que os testes ocorrerão no mesmo computador (localhost). Além disso, o servidor precisa saber a porta UDP de cada participante logo no início para conseguir enviar as notificações depois. Fixar os valores padrão do servidor e a sequência de perguntas do cliente evita que os dois sejam desenvolvidos com configurações diferentes, e atende a exigência de documentar os endereços e as portas utilizados. Deixar o IP e a porta do servidor no código simplifica a execução, e pedir os dados do cliente pelo terminal, em vez de argumentos, simplifica a execução de várias instâncias e atende à exigência de que o IP do servidor possa ser informado ou configurado.
 
 ### 2. Comunicação, Delimitação e Buffering TCP (Req. 2.2)
 
@@ -74,7 +74,7 @@ Enviado assim que o cliente conecta ao servidor.
 ```
 
 **Envio de Lance**
-O valor deve ser inteiro positivo.
+O valor deve ser numérico e inteiro.
 
 ```json
 {"action": "bid", "valor": 250}
