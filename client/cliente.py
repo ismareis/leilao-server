@@ -1,3 +1,4 @@
+## INTEGRANTES: Gabriel Müller Pacheco, Gustavo Sbardelotto Rezende, Ismael Scheele Reis, Vitor Rolim Rubio Auricchio
 import json
 import socket
 import threading
@@ -5,20 +6,20 @@ from datetime import datetime
 
 # Padrões sugeridos (o usuário pode só apertar Enter)
 IP_PADRAO = "127.0.0.1"
-PORTA_TCP_PADRAO = 5000
+PORTA_TCP = 5000
 
 # Estado do cliente
 nome = None
 arquivo_log = None
-ultimo_seq = 0                    # maior seq UDP já recebido
-conectado = threading.Event()     # limpo quando o servidor cai
+ultimo_seq = 0 # maior seq UDP já recebido
+conectado = threading.Event() # limpo quando o servidor cai
 
 # Locks
 lock_log = threading.Lock()
 lock_envio = threading.Lock()
 
 
-# Logs (mesmo formato do servidor, mas só no arquivo para não poluir o terminal)
+# Logs
 def log(proto, direcao, rota, acao):
     agora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     linha = f"[{agora}] | [{proto}] | [{direcao}] | [{rota}] | [{acao}]"
@@ -49,9 +50,8 @@ def enviar_tcp(sock, msg):
         return False
 
 
-# Leitura TCP com buffer (só processa quando chega o \n)
+# Leitura TCP
 def ler_linhas(sock, buffer):
-    """Gera mensagens JSON completas. Devolve quando a conexão fecha."""
     while True:
         while b"\n" in buffer:
             linha, buffer = buffer.split(b"\n", 1)
@@ -188,7 +188,6 @@ def ler_porta(pergunta, padrao=None):
 def configurar():
     global nome, arquivo_log
     ip = perguntar("IP do servidor", IP_PADRAO)
-    porta_tcp = ler_porta("Porta TCP do servidor", PORTA_TCP_PADRAO)
     while True:
         nome = perguntar("Seu nome")
         if nome != "":
@@ -196,7 +195,7 @@ def configurar():
         print("O nome não pode ser vazio.")
     udp_sock, porta_udp = abrir_udp()
     arquivo_log = f"log_cliente_{nome}.txt"
-    return ip, porta_tcp, porta_udp, udp_sock
+    return ip, porta_udp, udp_sock
 
 
 # bind() do UDP: se a porta estiver em uso, pede outra sem recomeçar tudo
@@ -222,17 +221,17 @@ def mostrar_ajuda():
 # Inicialização
 def main():
     # O bind() do UDP é feito em configurar(), ANTES do cadastro, para não perder nenhum aviso
-    ip, porta_tcp, porta_udp, udp_sock = configurar()
+    ip, porta_udp, udp_sock = configurar()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        sock.connect((ip, porta_tcp))
+        sock.connect((ip, PORTA_TCP))
     except OSError:
-        print(f"Não foi possível conectar ao servidor {ip}:{porta_tcp}.")
+        print(f"Não foi possível conectar ao servidor {ip}:{PORTA_TCP}.")
         udp_sock.close()
         return
     conectado.set()
-    log_evento(f"Conectado ao servidor {ip}:{porta_tcp} (UDP local {porta_udp})")
+    log_evento(f"Conectado ao servidor {ip}:{PORTA_TCP} (UDP local {porta_udp})")
 
     # Cadastro: espera a resposta antes de liberar os comandos
     enviar_tcp(sock, {"action": "register", "nome": nome, "udp_port": porta_udp})
@@ -290,7 +289,6 @@ def main():
                 if comando == "lance" and len(partes) < 2:
                     print("Uso: lance <valor>")
                     continue
-                # Converte para int se possível; senão envia como texto e o servidor rejeita
                 try:
                     valor = int(texto_valor)
                 except ValueError:

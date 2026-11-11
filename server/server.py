@@ -1,3 +1,4 @@
+## INTEGRANTES: Gabriel Müller Pacheco, Gustavo Sbardelotto Rezende, Ismael Scheele Reis, Vitor Rolim Rubio Auricchio
 import json
 import socket
 import threading
@@ -5,7 +6,7 @@ import time
 from datetime import datetime
 
 # Constantes fixas
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORTA_TCP = 5000
 ARQUIVO_LOG = "log_servidor.txt"
 DURACAO = 60
@@ -16,13 +17,13 @@ LANCE_MINIMO = None
 MIN_CLIENTES = None
 
 # Estado do leilão
-estado = "aguardando"   # aguardando | em_andamento | encerrado
-clientes = {}           # (nome, ip) -> Usuario
-maior_lance = None      # None enquanto não houver nenhum lance aceito
+estado = "aguardando" # aguardando | em_andamento | encerrado
+clientes = {} # (nome, ip) -> Usuario
+maior_lance = None # None enquanto não houver nenhum lance aceito
 vencedor_atual = None
-historico = []          # lista de {"autor": ..., "valor": ...}
-seq = 0                 # número sequencial dos avisos UDP
-fim_leilao = 0.0        # instante (time.time) em que o leilão termina
+historico = [] # lista de {"autor": ..., "valor": ...}
+seq = 0 # número sequencial dos avisos UDP
+fim_leilao = 0.0 # instante (time.time) em que o leilão termina
 
 # Locks
 lock_estado = threading.Lock()
@@ -31,7 +32,6 @@ lock_envio = threading.Lock()
 
 # Socket UDP usado para enviar os avisos (unicast)
 udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 
 
 class Usuario:
@@ -53,12 +53,12 @@ def log(proto, direcao, rota, acao):
     agora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     linha = f"[{agora}] | [{proto}] | [{direcao}] | [{rota}] | [{acao}]"
     with lock_log:
-        print(linha)
         with open(ARQUIVO_LOG, "a", encoding="utf-8") as f:
             f.write(linha + "\n")
 
 # Logs do Sistema
 def log_evento(texto):
+    print(texto)
     log("SISTEMA", "-", "-", texto)
 
 def formatar_socket(addr):
